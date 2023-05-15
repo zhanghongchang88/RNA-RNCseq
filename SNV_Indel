@@ -14,3 +14,33 @@ sampleID3=/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/hczhang/HCT116_data/NGS/RNCseq_H
 /hwfssz1/ST_SUPERCELLS/P21Z10200N0125/yanyixin/software/samtools/samtools-1.9/samtools merge -h ${sampleID1}/Aligned.sortedByCoord.out.bam ./Aligned.sortedByCoord.out.merge.bam ${sampleID1}/Aligned.sortedByCoord.out.bam ${sampleID2}/Aligned.sortedByCoord.out.bam ${sampleID3}/Aligned.sortedByCoord.out.bam
 #gata MarkDuplicate
 /share/app/gatk/4.1.8.1/gatk MarkDuplicates -MAX_FILE_HANDLES 1000 -I Aligned.sortedByCoord.out.merge.bam -O HCT116_RNC.markup.bam -M HCT116_RNC_.markup_metrics.txt
+#AddOrReplaceReadGroups
+java -jar /share/app/picard/2.23.8/picard.jar AddOrReplaceReadGroups \
+I= HCT116_RNC.markup.bam \
+O= HCT116_RNC.markup.addheader.bam \
+RGID=HCT116_RNCseq \
+RGLB=lib1 \
+RGPL=illumina \
+RGPU=unit1 \
+RGSM=HCT116_RNCseq \
+#BQSR-1:BaseRecalibrator
+/share/app/gatk/4.1.8.1/gatk BaseRecalibrator \
+-I ./HCT116_RNC.markup.addheader.bam \
+-R /hwfssz1/ST_SUPERCELLS/P21Z10200N0125/guanxiangyu/01.database/hg38/GATKbundle/Homo_sapiens_assembly38.fasta 
+ --known-sites /hwfssz1/ST_SUPERCELLS/P21Z10200N0125/guanxiangyu/01.database/hg38/GATKbundle/1000G_phase1.snps.high_confidence.hg38.vcf.gz 
+ --known-sites /hwfssz1/ST_SUPERCELLS/P21Z10200N0125/guanxiangyu/01.database/hg38/GATKbundle/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz 
+ --known-sites /hwfssz1/ST_SUPERCELLS/P21Z10200N0125/guanxiangyu/01.database/hg38/GATKbundle/cosmic_v92.hg38.vcf.gz --known-sites /hwfssz1/ST_SUPERCELLS/P21Z10200N0125/guanxiangyu/01.database/hg38/GATKbundle/dbsnp_151.hg38.vcf.gz \
+-O ./HCT116_RNC.recal_data.table 
+ --disable-sequence-dictionary-validation
+ #BQSR-2:ApplyBQSR
+ /share/app/gatk/4.1.8.1/gatk ApplyBQSR \
+ -R /hwfssz1/ST_SUPERCELLS/P21Z10200N0125/guanxiangyu/01.database/hg38/GATKbundle/Homo_sapiens_assembly38.fasta \
+ -I ./HCT116_RNC.markup.addheader.bam -bqsr HCT116_RNC.recal_data.table \
+ -O HCT116_RNC.sort.dedup.BQSR.bam \
+  --disable-sequence-dictionary-validation\
+ 
+ 
+ 
+ 
+ 
+ 
