@@ -38,8 +38,17 @@ RGSM=HCT116_RNCseq \
  -I ./HCT116_RNC.markup.addheader.bam -bqsr HCT116_RNC.recal_data.table \
  -O HCT116_RNC.sort.dedup.BQSR.bam \
   --disable-sequence-dictionary-validation\
- 
- 
+ # call SNV
+ /share/app/gatk/4.1.8.1/gatk Mutect2 \
+   -R /hwfssz1/ST_SUPERCELLS/P21Z10200N0125/guanxiangyu/01.database/hg38/GATKbundle/Homo_sapiens_assembly38.fasta \
+   -I HCT116_RNC.sort.dedup.BQSR.bam \
+   -O HCT116_RNC.vcf.gz\
+ #Filtering
+ /share/app/gatk/4.1.8.1/gatk FilterMutectCalls \
+-R /hwfssz1/ST_SUPERCELLS/P21Z10200N0125/guanxiangyu/01.database/hg38/GATKbundle/Homo_sapiens_assembly38.fasta \
+-V ./HCT116_RNC.vcf.gz \
+-O ./HCT116_RNC.filter1.vcf.gz\
+
  
  
  
