@@ -1,0 +1,31 @@
+#QC
+date
+sampleID="RNC_"
+dir="/hwfssz5/ST_BIOINTEL/P17H10200N0325/xianghaitao/singleMocularSequencing/analysis_20220923/$sampleID"
+/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/xianghaitao/software/fastp/fastp -i ${sampleID}_1.fq -I ${sampleID}_2.fq -o ${sampleID}.clean.1.fq -O ${sampleID}.clean.2.fq --json ${sampleID}.fastp.json --html ${sampleID}.fastp.html --qualified_quality_phred 15 --unqualified_percent_limit 40 --n_base_limit 5 --average_qual 10 --length_required 150 --report_title fastp report of ${sampleID}
+date
+#alignment
+/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/xianghaitao/software/STAR/STAR-2.7.10a/STAR   --twopassMode Basic   --quantMode TranscriptomeSAM GeneCounts   --runThreadN 8   --genomeDir /hwfssz1/ST_SUPERCELLS/P21Z10200N0125/xianghaitao/software/STAR/ref/human/CRC_exclusive/STAR_INDEX   --outSAMtype BAM Unsorted SortedByCoordinate   --outSAMunmapped Within KeepPairs   --outReadsUnmapped Fastx   --readFilesIn /hwfssz1/ST_SUPERCELLS/P21Z10200N0125/hczhang/HCT116_data/NGS/RNCseq_HCT116/rawdata/RNC_1.clean.1.fq      /hwfssz1/ST_SUPERCELLS/P21Z10200N0125/hczhang/HCT116_data/NGS/RNCseq_HCT116/rawdata/RNC_1.clean.2.fq
+qstat -j mapping.sh > ./mapping.sh.log
+#mergebam
+sampleID1=/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/hczhang/HCT116_data/NGS/RNCseq_HCT116/STAR/RNC_1
+sampleID2=/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/hczhang/HCT116_data/NGS/RNCseq_HCT116/STAR/RNC_2/RNC_1
+sampleID3=/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/hczhang/HCT116_data/NGS/RNCseq_HCT116/STAR/RNC_3
+/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/yanyixin/software/samtools/samtools-1.9/samtools merge -h ${sampleID1}/Aligned.sortedByCoord.out.bam ./Aligned.sortedByCoord.out.merge.bam ${sampleID1}/Aligned.sortedByCoord.out.bam ${sampleID2}/Aligned.sortedByCoord.out.bam ${sampleID3}/Aligned.sortedByCoord.out.bam
+#Trinity
+ #TrinitywithgenomeGuide
+ export PATH=/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/yanyixin/software/jellyfish/jellyfish-2.2.6/bin/:$PATH
+export PERL5LIB=/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/zhaoyuntong/softwares/miniconda3/lib/perl5/5.32
+export PATH=/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/zhaoyuntong/softwares/miniconda3/bin/:/share/app/bowtie2/2.4.1/:/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/xianghaitao/software/salmon/salmon-latest_linux_x86_64/bin/:$PATH
+/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/xianghaitao/software/Trinity/trinityrnaseq-v2.14.0/Trinity   --genome_guided_bam ./Aligned.sortedByCoord.out.merge.bam  --genome_guided_max_intron 10000   --CPU 8   --max_memory 50G   --output ./HCT116_RNC_trinity_withGenomeGuide
+ #TrinitywithgenomeFree
+ export PERL5LIB=/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/zhaoyuntong/softwares/miniconda3/lib/perl5/5.32
+export PATH=:/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/yanyixin/software/jellyfish/jellyfish-2.2.6/bin/:$PATH
+export PATH=/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/zhaoyuntong/softwares/miniconda3/bin/:/share/app/bowtie2/2.4.1/:/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/xianghaitao/software/salmon/salmon-latest_linux_x86_64/bin/:$PATH
+dir1=/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/hczhang/HCT116_data/NGS/RNCseq_HCT116/STAR/RNC_1
+dir2=/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/hczhang/HCT116_data/NGS/RNCseq_HCT116/STAR/RNC_2/RNC_1
+dir3=/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/hczhang/HCT116_data/NGS/RNCseq_HCT116/STAR/RNC_3
+/hwfssz1/ST_SUPERCELLS/P21Z10200N0125/xianghaitao/software/Trinity/trinityrnaseq-v2.14.0//Trinity --seqType fq --max_memory 50G  \
+         --left ${dir1}/Unmapped.out.mate2.fq,${dir2}/Unmapped.out.mate2.fq,${dir3}/Unmapped.out.mate2.fq \
+         --right ${dir1}/Unmapped.out.mate1.fq,${dir2}/Unmapped.out.mate1.fq,${dir3}/Unmapped.out.mate1.fq \
+         --CPU 6
