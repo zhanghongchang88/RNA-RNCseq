@@ -1,0 +1,6 @@
+#Download 人类参考基因组注释文件BED文件
+https://genome.ucsc.edu/
+#RSeQC
+python /hwfssz1/ST_SUPERCELLS/P21Z10200N0125/hczhang/software/rseqc/bin/read_distribution.py\
+-i /hwfssz1/ST_SUPERCELLS/P21Z10200N0125/hczhang/HCT116_data/NGS/RNCseq_HCT116/mutation/Aligned.sortedByCoord.out.merge.bam\
+-r /hwfssz1/ST_SUPERCELLS/P21Z10200N0125/hczhang/ref/hgv38.bed
